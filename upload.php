@@ -1,5 +1,16 @@
 <?php
 
+$jsonFile = __DIR__ . '/songs.json';
+
+if (file_exists($jsonFile)) {
+    $data = json_decode(file_get_contents($jsonFile), true);
+    if (! is_array($data)) {
+        $data = ['songs' => []];
+    }
+} else {
+    $data = ['songs' => []];
+}
+
 $uploadDir = __DIR__ . '/uploads/tmp/';
 
 if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['chunk_index']) || ! isset($_POST['total_chunks'])) {
@@ -38,6 +49,13 @@ if (count($chunks) === $totalChunks) {
 
     array_map('unlink', glob("$targetDir/part_*"));
     rmdir($targetDir);
+
+    $data['songs'][] = [
+        'name' => $filename,
+        'hash' => $_POST['hash']
+    ];
+    
+    file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     exit;
 }
