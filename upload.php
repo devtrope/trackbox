@@ -13,7 +13,7 @@ if (file_exists($jsonFile)) {
 
 $uploadDir = __DIR__ . '/uploads/tmp/';
 
-if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['chunk_index']) || ! isset($_POST['total_chunks'])) {
+if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['chunk_index']) || ! isset($_POST['total_chunks']) || ! isset($_POST['hash'])) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing required fields']);
     exit;
@@ -22,6 +22,14 @@ if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['
 $filename = $_POST['filename'];
 $chunkIndex = intval($_POST['chunk_index']);
 $totalChunks = intval($_POST['total_chunks']);
+$incomingHash = $_POST['hash'];
+
+// Ignore if the file has not been modified
+foreach ($data['songs'] as $song) {
+    if ($song['hash'] === $incomingHash) {
+        exit;
+    }
+}
 
 $chunk = $_FILES['chunk']['tmp_name'];
 $targetDir = $uploadDir . $filename;
@@ -54,7 +62,7 @@ if (count($chunks) === $totalChunks) {
         'name' => $filename,
         'hash' => $_POST['hash']
     ];
-    
+
     file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     exit;
