@@ -1,15 +1,8 @@
 <?php
 
-$jsonFile = __DIR__ . '/songs.json';
+$database = new PDO('mysql:host=localhost;dbname=trackbox;charset=utf8', 'root', 'root');
 
-if (file_exists($jsonFile)) {
-    $data = json_decode(file_get_contents($jsonFile), true);
-    if (! is_array($data)) {
-        $data = ['songs' => []];
-    }
-} else {
-    $data = ['songs' => []];
-}
+$songs = $database->query('SELECT * FROM songs')->fetchAll(PDO::FETCH_ASSOC);
 
 $uploadDir = __DIR__ . '/uploads/tmp/';
 
@@ -23,13 +16,6 @@ $filename = $_POST['filename'];
 $chunkIndex = intval($_POST['chunk_index']);
 $totalChunks = intval($_POST['total_chunks']);
 $incomingHash = $_POST['hash'];
-
-// Ignore if the file has not been modified
-foreach ($data['songs'] as $song) {
-    if ($song['hash'] === $incomingHash) {
-        exit;
-    }
-}
 
 $chunk = $_FILES['chunk']['tmp_name'];
 $targetDir = $uploadDir . $filename;
@@ -58,12 +44,12 @@ if (count($chunks) === $totalChunks) {
     array_map('unlink', glob("$targetDir/part_*"));
     rmdir($targetDir);
 
-    $data['songs'][] = [
+    $ins = $database->prepare('INSERT INTO songs (hash, name, path) VALUES (:hash, :name, :path)');
+    $ins->execute([
+        'hash' => $incomingHash,
         'name' => $filename,
-        'hash' => $_POST['hash']
-    ];
-
-    file_put_contents($jsonFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        'path' => "uploads/$filename"
+    ]);
 
     exit;
 }
