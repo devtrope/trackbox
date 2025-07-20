@@ -2,8 +2,6 @@
 
 $database = new PDO('mysql:host=localhost;dbname=trackbox;charset=utf8', 'root', 'root');
 
-$songs = $database->query('SELECT * FROM songs')->fetchAll(PDO::FETCH_ASSOC);
-
 $uploadDir = __DIR__ . '/uploads/tmp/';
 
 if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['chunk_index']) || ! isset($_POST['total_chunks']) || ! isset($_POST['hash'])) {
@@ -16,6 +14,13 @@ $filename = $_POST['filename'];
 $chunkIndex = intval($_POST['chunk_index']);
 $totalChunks = intval($_POST['total_chunks']);
 $incomingHash = $_POST['hash'];
+
+// Ignore if the file has not been modified
+$songExists = $database->prepare('SELECT * FROM songs WHERE name = :name AND hash = :hash');
+$songExists->execute(['name' => $filename, 'hash' => $incomingHash]);
+if ($songExists->rowCount() > 0) {
+    exit;
+}
 
 $chunk = $_FILES['chunk']['tmp_name'];
 $targetDir = $uploadDir . $filename;
