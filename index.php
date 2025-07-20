@@ -17,15 +17,29 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Files synchronised successfully');
+                    fetchFiles()
                 } else {
                     alert('An error happened during synchronization: ' + data.message);
                 }
             })
         })
+
+        function fetchFiles() {
+            fetch('files.php')
+            .then(response => response.text())
+            .then(html => {
+                document.querySelector('.files').innerHTML = html
+            })
+            .catch(error => {
+                console.error('Error fetching files:', error)
+            })
+        }
+
+        fetchFiles()
     })
 </script>
 <body>
     <button id="sync-files">Synchroniser</button>
+    <div class="files"></div>
 </body>
 </html>
