@@ -29,7 +29,8 @@ move_uploaded_file($chunk, $chunkPath);
 
 $chunks = glob("$targetDir/part_*");
 if (count($chunks) === $totalChunks) {
-    $finalPath = __DIR__ . "/uploads/$filename";
+    $uploadPath = "uploads/$incomingHash." . pathinfo($filename, PATHINFO_EXTENSION);
+    $finalPath = __DIR__ . "/" . $uploadPath;
     $out = fopen($finalPath, 'wb');
 
     for ($i = 0; $i < $totalChunks; $i++) {
@@ -48,7 +49,7 @@ if (count($chunks) === $totalChunks) {
     $ins->execute([
         'hash' => $incomingHash,
         'name' => $filename,
-        'path' => "uploads/$filename"
+        'path' => $uploadPath
     ]);
 
     exit;
