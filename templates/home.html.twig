@@ -3,7 +3,16 @@
 {% block content %}
     <navbar class="shadow-md p-4 flex justify-between items-center">
         <h1 class="text-2xl font-bold text-slate-900">TrackBox</h1>
-        <button id="sync-files" class="bg-indigo-600 hover:bg-indigo-700 hover:cursor-pointer text-white font-semibold py-2 px-4 rounded">Sync Files</button>
+        <div class="flex items-center gap-4">
+            <button id="sync-files" class="bg-indigo-600 hover:bg-indigo-700 hover:cursor-pointer text-white font-semibold text-sm py-2 px-4 rounded flex items-center gap-2">
+                <span class="material-symbols-outlined">sync</span>
+                Sync Files
+            </button>
+            <button id="sync-files-loader" class="bg-indigo-400 text-white font-semibold text-sm py-2 px-4 rounded flex items-center gap-2 hidden">
+                <span class="material-symbols-outlined">hourglass</span>
+                Synchronizing...
+            </button>
+        </div>
     </navbar>
 
     <div class="p-8 w-[70%] mx-auto mt-8">
@@ -13,7 +22,7 @@
             {% for file in files %}
                 <div class="p-4 rounded shadow flex justify-between items-center">
                     <div>
-                        <p class="font-medium">{{ file.name }}</p>
+                        <p class="font-semibold">{{ file.name }}</p>
                         <p class="text-sm text-gray-500">Version: {{ file.version }} • Uploaded: {{ file.created_at|date('d/m/Y') }}</p>
                     </div>
                     {% if file.version > 1 %}
@@ -23,4 +32,31 @@
             {% endfor %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('sync-files').addEventListener('click', function() {
+                document.getElementById('sync-files').classList.add('hidden')
+                document.getElementById('sync-files-loader').classList.remove('hidden')
+
+                fetch ('http://127.0.0.1:5001/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Synchronization completed successfully!')
+                        document.getElementById('sync-files-loader').classList.add('hidden')
+                        document.getElementById('sync-files').classList.remove('hidden')
+                        location.reload()
+                    } else {
+                        alert('An error happened during synchronization: ' + data.message)
+                    }
+                })
+            })
+        })
+    </script>
 {% endblock %}
