@@ -1,0 +1,14 @@
+<h2 class="text-xl font-semibold mb-4 text-slate-900">Uploaded Songs ({{ files|length }})</h1>
+<div class="space-y-3">
+    {% for file in files %}
+        <div class="p-4 rounded shadow flex justify-between items-center">
+            <div>
+                <p class="font-semibold">{{ file.name }}</p>
+                <p class="text-sm text-gray-500">Version: {{ file.version }} • Uploaded: {{ file.created_at|date('d/m/Y') }}</p>
+            </div>
+            {% if file.version > 1 %}
+                <button class="text-indigo-600 hover:underline hover:cursor-pointer text-sm">View Versions</button>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
