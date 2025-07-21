@@ -6,8 +6,6 @@ class UploadController
 {
     public function index(): void
     {
-        $database = new \PDO('mysql:host=localhost;dbname=trackbox;charset=utf8', 'root', 'root');
-
         $uploadDir = PUBLIC_ROOT . '/assets/uploads/tmp/';
 
         if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['chunk_index']) || ! isset($_POST['total_chunks']) || ! isset($_POST['hash'])) {
@@ -22,7 +20,7 @@ class UploadController
         $incomingHash = $_POST['hash'];
 
         // Ignore if the file has not been modified
-        $songExists = $database->prepare('SELECT * FROM songs WHERE name = :name AND hash = :hash');
+        $songExists = \Trackbox\Config\Database::getConnection()->prepare('SELECT * FROM songs WHERE name = :name AND hash = :hash');
         $songExists->execute(['name' => $filename, 'hash' => $incomingHash]);
         if ($songExists->rowCount() > 0) {
             exit;
@@ -56,12 +54,12 @@ class UploadController
             array_map('unlink', glob("$targetDir/part_*"));
             rmdir($targetDir);
 
-            $stmt = $database->prepare('SELECT MAX(version) AS max_version FROM songs WHERE name = :name');
+            $stmt = \Trackbox\Config\Database::getConnection()->prepare('SELECT MAX(version) AS max_version FROM songs WHERE name = :name');
             $stmt->execute(['name' => $filename]);
             $maxVersion = $stmt->fetch()['max_version'] ?? 0;
             $newVersion = $maxVersion + 1;
 
-            $ins = $database->prepare('INSERT INTO songs (hash, name, path, version) VALUES (:hash, :name, :path, :version)');
+            $ins = \Trackbox\Config\Database::getConnection()->prepare('INSERT INTO songs (hash, name, path, version) VALUES (:hash, :name, :path, :version)');
             $ins->execute([
                 'hash' => $incomingHash,
                 'name' => $filename,
