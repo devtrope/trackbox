@@ -8,22 +8,18 @@ require __DIR__ . '/../vendor/autoload.php';
 
 define('PUBLIC_ROOT',  __DIR__);
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$router = new \Trackbox\Router\Router();
 
-if ($uri === '/') {
-    $homeController = new HomeController();
-    $homeController->index();
-    exit;
-}
+$router->get('/', function () {
+    (new HomeController())->index();
+});
 
-if ($uri === '/upload') {
-    $uploadController = new UploadController();
-    $uploadController->index();
-    exit;
-}
+$router->get('/files', function () {
+    (new FilesController())->index();
+});
 
-if ($uri === '/files') {
-    $filesController = new FilesController();
-    $filesController->index();
-    exit;
-}
+$router->post('/upload', function () {
+    (new UploadController())->index();
+});
+;
+$router->dispatch();
