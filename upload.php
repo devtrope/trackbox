@@ -50,11 +50,17 @@ if (count($chunks) === $totalChunks) {
     array_map('unlink', glob("$targetDir/part_*"));
     rmdir($targetDir);
 
-    $ins = $database->prepare('INSERT INTO songs (hash, name, path) VALUES (:hash, :name, :path)');
+    $stmt = $database->prepare('SELECT MAX(version) AS max_version FROM songs WHERE name = :name');
+    $stmt->execute(['name' => $filename]);
+    $maxVersion = $stmt->fetch()['max_version'] ?? 0;
+    $newVersion = $maxVersion + 1;
+
+    $ins = $database->prepare('INSERT INTO songs (hash, name, path, version) VALUES (:hash, :name, :path, :version)');
     $ins->execute([
         'hash' => $incomingHash,
         'name' => $filename,
-        'path' => $uploadPath
+        'path' => $uploadPath,
+        'version' => $newVersion
     ]);
 
     exit;
