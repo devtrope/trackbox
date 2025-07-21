@@ -1,0 +1,10 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Trackbox\\": "src/"
+        }
+    },
+    "require": {
+        "twig/twig": "3.14.0"
+    }
+}
