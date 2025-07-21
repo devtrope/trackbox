@@ -22,7 +22,7 @@ $files = $database->query($query)->fetchAll(PDO::FETCH_ASSOC);
             <tr>
                 <td><?php echo htmlspecialchars($file['name']); ?></td>
                 <td><?php echo htmlspecialchars($file['hash']); ?></td>
-                <td><?php echo htmlspecialchars($file['path']); ?></td>
+                <td><audio controls src="<?php echo htmlspecialchars($file['path']); ?>"></audio></td>
             </tr>
         <?php endforeach; ?>
     </tbody>
