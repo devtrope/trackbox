@@ -8,7 +8,7 @@ class UploadController
     {
         $database = new \PDO('mysql:host=localhost;dbname=trackbox;charset=utf8', 'root', 'root');
 
-        $uploadDir = __DIR__ . '/uploads/tmp/';
+        $uploadDir = PUBLIC_ROOT . '/assets/uploads/tmp/';
 
         if (! isset($_FILES['chunk']) || ! isset($_POST['filename']) || ! isset($_POST['chunk_index']) || ! isset($_POST['total_chunks']) || ! isset($_POST['hash'])) {
             http_response_code(400);
@@ -40,8 +40,8 @@ class UploadController
 
         $chunks = glob("$targetDir/part_*");
         if (count($chunks) === $totalChunks) {
-            $uploadPath = "uploads/$incomingHash." . pathinfo($filename, PATHINFO_EXTENSION);
-            $finalPath = __DIR__ . "/" . $uploadPath;
+            $uploadPath = "assets/uploads/$incomingHash." . pathinfo($filename, PATHINFO_EXTENSION);
+            $finalPath = PUBLIC_ROOT . "/" . $uploadPath;
             $out = fopen($finalPath, 'wb');
 
             for ($i = 0; $i < $totalChunks; $i++) {

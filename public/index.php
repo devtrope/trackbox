@@ -6,6 +6,8 @@ use Trackbox\Controller\UploadController;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+define('PUBLIC_ROOT',  __DIR__);
+
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 if ($uri === '/') {
